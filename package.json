@@ -4,13 +4,18 @@
   "description": "A simple Discord bot for the Chaoos Discord server",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node src/index.js",
+    "watch": "tsc -p tsconfig.json -w",
+    "test": "jest",
+    "dev": "nodemon src/index.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "discord.js": "^13.3.1",
-    "dotenv": "^10.0.0"
+    "dotenv": "^10.0.0",
+    "mocha": "^9.1.3",
+    "nodemon": "^2.0.15"
   }
 }
