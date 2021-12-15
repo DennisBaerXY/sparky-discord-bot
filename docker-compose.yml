@@ -9,7 +9,6 @@ services:
       dockerfile: ./Dockerfile
     environment:
       NODE_ENV: production
-      DISCORD_BOT_TOKEN: OTE5NTI1ODAyMDkyMTY3MTY5.YbXFIw.B5gHiF-8dkWZZdfK99IGSFZCM7E
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: discordbotsparky
