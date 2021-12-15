@@ -6,7 +6,7 @@ const {
   ReactionEmoji,
 } = require("discord.js");
 const { Pool } = require("pg/lib");
-const { getAllPolls, Poll } = require("./poll/polls");
+const { getAllPolls, Poll, embedAllPolls } = require("./poll/polls");
 const botName = "Sparky";
 const client = new Client({
   intents: [
@@ -17,17 +17,18 @@ const client = new Client({
     Intents.FLAGS.GUILD_MESSAGES,
     Intents.FLAGS.GUILD_MESSAGE_REACTIONS,
     Intents.FLAGS.GUILD_EMOJIS_AND_STICKERS,
+    Intents.FLAGS.DIRECT_MESSAGES,
   ],
 });
 
 require("dotenv").config();
 
-const { indexToEmoji } = require("./utils.js");
-
 client.on("ready", () => {
   console.log(`${client.user.tag} is online!`);
   client.user.setActivity("with the code", { type: "PLAYING" });
 });
+
+//Listen for private messages and respond with a message
 
 //Gets called at every message
 client.on("messageCreate", async (message) => {
@@ -45,27 +46,34 @@ client.on("messageCreate", async (message) => {
     await message.channel.send({ embeds: [embed] });
   }
 
+  if (message.channel.type === "DM") {
+    if (message.content.startsWith("!syncvideo")) {
+      message.channel.send("https://sync-video.de/create");
+    }
+  }
+  if (message.content.startsWith("!polls help")) {
+    const embed = new MessageEmbed()
+      .setTitle("Sparky Polls Help")
+      .setDescription(
+        "Sparky is a bot that allows you to create polls.\n\n" +
+          'To create a poll, type `!poll title="Your Titel" option="custom option" option="custom option 2" ` .\n\n' +
+          "To vote, react to the poll with the emoji corresponding to the option you want to vote for.\n\n" +
+          "To view a poll, type `!poll view ` and then the poll id\n\n" +
+          "To delete a poll, type `!poll delete ` and then the poll id\n\n"
+      )
+      .setColor("#0099ff");
+    await message.channel.send({ embeds: [embed] });
+    return;
+  }
+
   //Check if the message is a poll
   if (message.content.startsWith("!polls")) {
     //Gets all the pools with a query -> select * from polls where guild_id = message.guild.id
-    const polls = await getAllPolls(message.guild.id);
-    const embed = new MessageEmbed();
-
-    embed.setTitle("Polls");
-    embed.setColor("#0099ff");
-    embed.setFooter(`${botName} | Polls for ${message.guild.name}`);
-    polls.forEach((poll, index) => {
-      console.log(poll);
-      embed.addField("Number ", (index + 1).toString(), true);
-      embed.addField("Poll title", poll.title, true);
-      embed.addField("Poll description", poll.description, true);
-    });
-
-    let sendMessage = await message.channel.send({ embeds: [embed] });
-
-    await sendMessage.react("📝");
-    await sendMessage.react("❌");
+    let embed = await embedAllPolls(message.guild.id);
+    message.channel.send({ embeds: [embed] });
+    return;
   }
+
   if (message.content.startsWith("!poll ")) {
     //!poll title="poll title" option1="option 1" option2="option 2" option3="option 3"
     //dont split on every space, only if the space is not in quotes
@@ -104,8 +112,14 @@ client.on("messageCreate", async (message) => {
 
     message.channel.send({ embeds: [embed] });
   }
-
-  //Create unicode array of emojis for the reactions
 });
 
-client.login(process.env.DISCORD_BOT_TOKEN);
+client.on("messageCreate", async (message) => {
+  if (message.channel.type === "dm") {
+    if (message.content.startsWith("!syncvideo")) {
+      message.channel.send("https://sync-video.de/create");
+    }
+  }
+});
+
+client.login(process.env.DISCORD_BOT_TOKEN.toString());

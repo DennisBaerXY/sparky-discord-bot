@@ -1,3 +1,5 @@
 .env
-
+/pgdata
+/postgres-data
 node_modules
+/postgres*

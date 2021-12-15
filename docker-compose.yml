@@ -1,0 +1,36 @@
+version: '3.4'
+
+services:
+  discordbot:
+    container_name: discordbot
+    image: discordbot
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    environment:
+      NODE_ENV: production
+      DISCORD_BOT_TOKEN: OTE5NTI1ODAyMDkyMTY3MTY5.YbXFIw.B5gHiF-8dkWZZdfK99IGSFZCM7E
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: discordbotsparky
+      POSTGRES_HOST: db
+    depends_on:
+      - db
+
+  db: 
+    container_name: db
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: discordbotsparky
+    volumes:
+      
+      - ./postgresdata:/var/lib/postgresql/data
+      - ./src/migrations/dbinit.sql:/docker-entrypoint-initdb.d/dbinit.sql
+    ports:
+       - 5432:5432
+volumes:
+  postgresdata:
+  
