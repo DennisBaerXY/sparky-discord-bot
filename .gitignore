@@ -3,4 +3,5 @@
 /postgres-data
 node_modules
 /postgres*
+postgres*
 docker-compose.override.yml
