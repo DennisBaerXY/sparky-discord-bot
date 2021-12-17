@@ -1,11 +1,26 @@
 const { Pool } = require("pg");
-const pool = new Pool({
-  user: "postgres",
-  host: "localhost",
-  database: "sparky_bot",
-  password: "Ritter1209",
-  port: 5432,
-});
+require("dotenv").config();
+
+let poolConfig = {};
+
+if (process.env.NODE_ENV === "production") {
+  poolConfig = {
+    connectionString: `postgres://${process.env.POSTGRES_USER}:${process.env.POSTGRES_PASSWORD}@${process.env.POSTGRES_HOST}:5432/${process.env.POSTGRES_DB}`,
+    idleTimeoutMillis: 30000,
+    max: 20,
+  };
+} else {
+  //Print the environment variables
+
+  poolConfig = {
+    user: process.env.POSTGRES_USER,
+    host: "localhost",
+    password: process.env.POSTGRES_PASSWORD,
+    database: process.env.POSTGRES_DB,
+    port: 5432,
+  };
+}
+const pool = new Pool(poolConfig);
 
 module.exports = {
   async query(text, params) {
@@ -16,7 +31,22 @@ module.exports = {
     return res;
   },
   async getClient() {
-    const client = await pool.connect();
+    //Retry up to 5 times to connect with the pool
+    let client;
+    for (let i = 0; i < 5; i++) {
+      try {
+        client = await pool.connect();
+        break;
+      } catch (e) {
+        console.log("Failed to connect to the database");
+        console.log(e);
+        await new Promise((r) => setTimeout(r, 1000));
+      }
+    }
+
+    if (client === undefined) {
+      throw new Error("Failed to connect to the database");
+    }
     const query = client.query;
     const release = client.release;
     // set a timeout of 5 seconds, after which we will log this client's last query

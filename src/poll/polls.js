@@ -1,4 +1,11 @@
 const { getClient } = require("../database/db.js");
+const {
+  Client,
+  MessageEmbed,
+  Intents,
+  Emoji,
+  ReactionEmoji,
+} = require("discord.js");
 
 /*
 create TABLE polls (
@@ -137,16 +144,16 @@ class Poll {
   }
 }
 
+async function getAllPolls(guild_id) {
+  let client = await getClient();
+  let result = await client.query("SELECT * FROM polls where guilde_id = $1", [
+    guild_id,
+  ]);
+  return result.rows;
+}
 module.exports = {
   Poll,
-  getAllPolls: async function (guild_id) {
-    let client = await getClient();
-    let result = await client.query(
-      "SELECT * FROM polls where guilde_id = $1",
-      [guild_id]
-    );
-    return result.rows;
-  },
+  getAllPolls: getAllPolls(),
   getPoll: async function (pollId) {
     let client = await getClient();
     let result = await client.query("SELECT * FROM polls WHERE id = $1", [
@@ -174,6 +181,17 @@ module.exports = {
     embed.setDescription(
       polls.map((poll) => `${poll.polls_id} - ${poll.title}`).join("\n")
     );
+    return embed;
+  },
+  embedAllPolls: async function (guild_id) {
+    let polls = await getAllPolls(guild_id);
+    let embed = new MessageEmbed();
+    embed.setTitle("Polls");
+    embed.setColor("#0099ff");
+    embed.setDescription("Polls for the Guild: " + guild_id);
+    polls.forEach((poll) => {
+      embed.addField(poll.title, poll.description);
+    });
     return embed;
   },
 };
