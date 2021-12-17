@@ -25,7 +25,11 @@ require("dotenv").config();
 
 client.on("ready", () => {
   console.log(`${client.user.tag} is online!`);
-  client.user.setActivity("with the code", { type: "PLAYING" });
+  if (process.env.NODE_ENV === "DEV") {
+    client.user.setActivity("with the code", { type: "PLAYING" });
+  } else {
+    client.user.setActivity("some jammers", { type: "LISTENING" });
+  }
 });
 
 //Listen for private messages and respond with a message
@@ -122,4 +126,4 @@ client.on("messageCreate", async (message) => {
   }
 });
 
-client.login(process.env.DISCORD_BOT_TOKEN.toString());
+client.login(process.env.DISCORD_BOT_TOKEN);

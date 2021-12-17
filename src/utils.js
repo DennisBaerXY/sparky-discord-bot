@@ -10,5 +10,6 @@ module.exports = {
       return "";
     }
     return "regional_indicator_" + String.fromCharCode(97 + index);
+    
   },
 };
